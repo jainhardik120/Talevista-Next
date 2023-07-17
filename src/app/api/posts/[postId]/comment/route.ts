@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import connectMongo from "@/utils/ConnectMongo";
 import Comment from "@/app/api/Comment.model";
 import User from "@/app/api/User.model";
-import Post, { PostData, PostDocument } from "@/app/api/Post.model";
+import Post from "@/app/api/Post.model";
 import { HttpError } from "@/utils/HttpError";
 import mongoose, { PaginateOptions } from "mongoose"
 
@@ -72,11 +72,7 @@ export async function POST(request: Request,{ params }: { params: { postId: stri
         });
 
         const savedComment = await comment.save();
-
-        // Add the comment to the user's comments field
         await User.findByIdAndUpdate(userId, { $push: { comments: savedComment._id } });
-
-        // Add the comment to the post's comments array
         post.comments.push(savedComment._id);
         await post.save();
 
