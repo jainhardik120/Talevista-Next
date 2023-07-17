@@ -1,0 +1,54 @@
+import User from '@/app/api/User.model';
+import connectMongo from '@/utils/ConnectMongo'
+import { NextResponse } from 'next/server'
+import jsonwebtoken from "jsonwebtoken"
+import axios from 'axios';
+import key from '@/utils/SecretKey';
+import PasswordResetMail from '@/utils/PasswordResetMail';
+
+export async function GET(request: Request, { params }: { params: { email: string } }) {
+    const email = params.email
+    try {
+        await connectMongo();
+        const foundUser = await User.findOne({ email: email });
+        if (!foundUser) {
+            const error = new Error(`Email address is not signed up!`)
+            throw error
+        } else {
+            const token = jsonwebtoken.sign(
+                {
+                    userId: foundUser._id,
+                    forReset: true
+                }, key, {
+                expiresIn: 60 * 10
+            }
+            )
+            const url = `talevista://resetpassword?token=${token}`
+            const mailResponse = await axios.post(`https://api.brevo.com/v3/smtp/email`, {
+                sender: {
+                    name: "TaleVista",
+                    email: "jainhardik120@gmail.com"
+                },
+                to: [
+                    {
+                        email: `${foundUser.email}`,
+                        name: `${foundUser.first_name} ${foundUser.last_name}`
+                    }
+                ],
+                subject: "Reset Password",
+                htmlContent: PasswordResetMail(url)
+            }, {
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                    'content-type': 'application/json'
+                }
+            })
+            return NextResponse.json({
+                data: mailResponse.data
+            });
+        }
+    } catch (error) {
+        return NextResponse.error();
+    }
+}
