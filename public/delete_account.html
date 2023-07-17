@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delete Account - TaleVista</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/css/material-icons.min.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    h1 {
+      color: #2196f3;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      font-size: 16px;
+    }
+    .form-group textarea {
+      resize: vertical;
+    }
+    .form-group button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #2196f3;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .form-group button:hover {
+      background-color: #0c7cd5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Delete Account</h1>
+    <p>An email will be sent to you to confirm the deletion of your account.</p>
+    <form id="deleteAccountForm">
+      <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason for Deletion:</label>
+        <select id="reason" name="reason">
+          <option value="no-interest">No Longer Interested</option>
+          <option value="privacy-concerns">Privacy Concerns</option>
+          <option value="found-alternative">Found an Alternative</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div id="customReason" style="display: none;" class="form-group">
+        <label for="custom">Other </label>
+        <textarea id="custom" name="custom" rows="4" cols="50"></textarea>
+      </div>
+
+      <div class="form-group">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const deleteAccountForm = document.getElementById('deleteAccountForm');
+    const reasonDropdown = document.getElementById('reason');
+    const customReasonField = document.getElementById('customReason');
+
+    reasonDropdown.addEventListener('change', function() {
+      if (this.value === 'other') {
+        customReasonField.style.display = 'block';
+      } else {
+        customReasonField.style.display = 'none';
+      }
+    });
+
+    deleteAccountForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const reason = document.getElementById('reason').value;
+      const customReason = document.getElementById('custom').value;
+
+      const requestData = {
+        email: email,
+        reason: (reason === 'other') ? customReason : reason
+      };
+
+      // Send the data to a server endpoint using POST method in JSON format
+      fetch('https://example.com/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('Account deletion request submitted successfully.');
+          // Redirect or display a success message
+        } else {
+          alert('An error occurred while submitting the request. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the request. Please try again.');
+      });
+    });
+  </script>
+</body>
+</html>
