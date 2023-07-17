@@ -1,23 +1,7 @@
-import { Document, Schema, Model, models, model } from 'mongoose';
+import mongoose, { Document, PaginateModel, Schema, models } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 
-interface IComment extends Document {
-  detail: string;
-  author: Schema.Types.ObjectId;
-  post: Schema.Types.ObjectId;
-  likes: Schema.Types.ObjectId[];
-  dislikes: Schema.Types.ObjectId[];
-  likesCount: number;
-  dislikesCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface ICommentModel extends Model<IComment> {
-  // Add custom static methods here if needed
-}
-
-const commentSchema = new Schema<IComment, ICommentModel>(
+export const commentSchema = new Schema(
   {
     detail: {
       type: String,
@@ -61,7 +45,24 @@ const commentSchema = new Schema<IComment, ICommentModel>(
 
 commentSchema.plugin(mongoosePaginate);
 
-const Comment: ICommentModel =
-  (models.Comment as ICommentModel) || model<IComment, ICommentModel>('Comment', commentSchema);
 
-export default Comment;
+export interface CommentData {
+  detail: string;
+  author: Schema.Types.ObjectId;
+  post: Schema.Types.ObjectId;
+  likes: Schema.Types.ObjectId[];
+  dislikes: Schema.Types.ObjectId[];
+  likesCount: number;
+  dislikesCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CommentDocument extends Document, CommentData{}
+
+const model = (models.Comment as PaginateModel<CommentDocument>) || mongoose.model<
+  CommentDocument,
+  mongoose.PaginateModel<CommentDocument>
+>('Comment', commentSchema);
+
+export default model

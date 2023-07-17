@@ -75,7 +75,7 @@ export const postSchema = new Schema(
 postSchema.plugin(mongoosePaginate);
 
 
-interface PostData {
+export interface PostData {
   author: Schema.Types.ObjectId;
   content: string;
   category: string;
