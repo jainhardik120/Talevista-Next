@@ -1,10 +1,8 @@
 import User from '@/app/api/User.model';
 import connectMongo from '@/utils/ConnectMongo'
 import { NextResponse } from 'next/server'
-import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken"
 import key from '@/utils/SecretKey';
-import { Error } from 'mongoose';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
 import { OAuth2Client } from "google-auth-library";
@@ -42,7 +40,6 @@ export async function POST(request: Request) {
             return NextResponse.json({
                 token: token,
                 userId: _id,
-
                 firstName: foundUser.first_name,
                 lastName: foundUser.last_name,
                 email: foundUser.email,
