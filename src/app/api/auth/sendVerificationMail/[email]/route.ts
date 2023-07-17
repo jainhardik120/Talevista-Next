@@ -7,7 +7,6 @@ import key from '@/utils/SecretKey';
 import PasswordResetMail from '@/utils/PasswordResetMail';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
-import { CustomJwtPayload } from '../../resetPassword/route';
 
 export async function GET(request: Request, { params }: { params: { email: string } }) {
     const email = params.email
@@ -17,12 +16,11 @@ export async function GET(request: Request, { params }: { params: { email: strin
         if (!foundUser) {
             throw new HttpError(404, "Email address not signed up")
         } else {
-            const payload: CustomJwtPayload = {
-                userId: foundUser._id,
-                forReset: true
-            }
             const token = jsonwebtoken.sign(
-                payload, key, {
+                {
+                    userId: foundUser._id,
+                    forReset: true
+                }, key, {
                 expiresIn: 60 * 10
             }
             )
