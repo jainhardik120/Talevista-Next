@@ -6,6 +6,7 @@ import key from '@/utils/SecretKey';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
 import { OAuth2Client } from "google-auth-library";
+import { LoginJwtPayload } from '../login/route';
 
 
 export async function POST(request: Request) {
@@ -25,10 +26,11 @@ export async function POST(request: Request) {
             email: payload.email
         })
         if (foundUser) {
-            const token = await jsonwebtoken.sign({
+            const payload : LoginJwtPayload={
                 email: foundUser.email,
                 userId: foundUser._id.toString()
-            }, key)
+            }
+            const token = jsonwebtoken.sign(payload, key)
             const { _id, verified } = foundUser;
             if (!verified) {
                 await User.updateOne({

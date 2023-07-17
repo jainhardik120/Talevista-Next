@@ -6,6 +6,7 @@ import jsonwebtoken from "jsonwebtoken"
 import key from '@/utils/SecretKey';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
+import { LoginJwtPayload } from '../login/route';
 
 function extractNameParts(fullName: string) {
     const parts = fullName.trim().split(' ');
@@ -47,10 +48,11 @@ export async function POST(request: Request) {
             date_of_birth: dob
         });
         const savedUser = await newUser.save();
-        const token = jsonwebtoken.sign({
+        const payload:LoginJwtPayload = {
             email: savedUser.email,
             userId: savedUser._id.toString()
-        }, key)
+        }
+        const token = jsonwebtoken.sign(payload, key)
 
         return NextResponse.json({
             token: token,

@@ -2,14 +2,20 @@ import User from '@/app/api/User.model';
 import connectMongo from '@/utils/ConnectMongo'
 import { NextResponse } from 'next/server'
 import bcrypt from "bcrypt";
-import jsonwebtoken from "jsonwebtoken"
+import jsonwebtoken, { JwtPayload } from "jsonwebtoken"
 import key from '@/utils/SecretKey';
 import { Error } from 'mongoose';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
 
+export interface LoginJwtPayload extends JwtPayload {
+    email: string,
+    userId: string
+}
+
+
 export async function POST(request: Request) {
-    const {email, password} = await request.json()
+    const { email, password } = await request.json()
     try {
         await connectMongo();
         const foundUser = await User.findOne({ email: email });
@@ -24,10 +30,11 @@ export async function POST(request: Request) {
             if (!isEqual) {
                 throw new HttpError(401, 'Wrong password!');
             }
-            const token = jsonwebtoken.sign({
+            const payload:LoginJwtPayload = {
                 email: foundUser.email,
                 userId: foundUser._id.toString()
-            }, key)
+            }
+            const token = jsonwebtoken.sign(payload, key)
             return NextResponse.json({
                 token: token,
                 userId: foundUser._id,

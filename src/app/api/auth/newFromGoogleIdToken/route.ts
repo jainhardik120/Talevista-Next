@@ -8,6 +8,7 @@ import { Error } from 'mongoose';
 import CustomErrorHandler from '@/utils/ErrorHandler';
 import { HttpError } from '@/utils/HttpError';
 import { OAuth2Client } from "google-auth-library";
+import { LoginJwtPayload } from '../login/route';
 
 function extractNameParts(fullName: string) {
     const parts = fullName.trim().split(' ');
@@ -55,10 +56,11 @@ export async function POST(request: Request) {
             date_of_birth: dob
         })
         const savedUser = await newUser.save()
-        const token = jsonwebtoken.sign({
+        const tokenPayload:LoginJwtPayload={
             email: savedUser.email,
             userId: savedUser._id.toString()
-        }, key)
+        }
+        const token = jsonwebtoken.sign(tokenPayload, key)
         const _id = savedUser._id
         return NextResponse.json({
             token: token,
