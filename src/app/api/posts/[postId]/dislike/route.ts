@@ -23,19 +23,19 @@ export async function PUT(request: Request, { params }: { params: { postId: stri
         const dislikedByCurrentUser = post.dislikes.some(dislike =>
             dislike.toString() == userId
         );
-        if (likedByCurrentUser) {
-            throw new HttpError(400, "Already Liked")
-        }
         if (dislikedByCurrentUser) {
-            post.dislikes = post.dislikes.filter((id) => id.toString() !== userId)
-            post.dislikesCount -= 1;
+            throw new HttpError(400, "Already Disliked")
         }
-        post.likes.push(userId as unknown as ObjectId);
-        post.likesCount += 1;
+        if (likedByCurrentUser) {
+            post.likes = post.likes.filter((id) => id.toString() !== userId)
+            post.likesCount -= 1;
+        }
+        post.dislikes.push(userId as unknown as ObjectId);
+        post.dislikesCount += 1;
         await post.save();
-        await User.findByIdAndUpdate(userId, { $push: { likes: postId }, $pull: { dislikes: postId } });
+        await User.findByIdAndUpdate(userId, { $push: { dislikes: postId }, $pull: { likes: postId } });
 
-        return NextResponse.json({ message: 'Post liked successfully' });
+        return NextResponse.json({ message: 'Post disliked successfully' });
     } catch (error) {
         return CustomErrorHandler(error);
     }
@@ -51,18 +51,18 @@ export async function DELETE(request: Request, { params }: { params: { postId: s
         if (!post) {
             throw new HttpError(404, "Post not found")
         }
-        const likedByCurrentUser = post.likes.some(like =>
+        const dislikedByCurrentUser = post.dislikes.some(like =>
             like.toString() == userId
         )
-        if (!likedByCurrentUser) {
-            throw new HttpError(400, "Not Liked")
+        if (!dislikedByCurrentUser) {
+            throw new HttpError(400, "Not Disliked")
         }
-        post.likes = post.likes.filter((id) => id.toString() !== userId);
-        post.likesCount -= 1;
+        post.dislikes = post.dislikes.filter((id) => id.toString() !== userId);
+        post.dislikesCount -= 1;
         await post.save();
-        await User.findByIdAndUpdate(userId, { $pull: { likes: postId } });
+        await User.findByIdAndUpdate(userId, { $pull: { dislikes: postId } });
 
-        return NextResponse.json({ message: 'Post unliked successfully' });
+        return NextResponse.json({ message: 'Post undisliked successfully' });
     } catch (error) {
         return CustomErrorHandler(error);
     }
