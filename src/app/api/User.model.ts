@@ -1,33 +1,7 @@
-import { Document, Schema, Model, models, model } from 'mongoose';
+import mongoose, { Document, Model, Schema, models } from 'mongoose';
 
-interface IUser extends Document {
-  username: string;
-  first_name: string;
-  last_name?: string;
-  password_hash?: string;
-  has_password?: boolean;
-  email: string;
-  verified?: boolean;
-  picture: string;
-  date_of_birth: Date;
-  gender: 'male' | 'female' | 'other' | 'na';
-  posts: Schema.Types.ObjectId[];
-  comments: Schema.Types.ObjectId[];
-  likes: Schema.Types.ObjectId[];
-  dislikes: Schema.Types.ObjectId[];
-  friends: {
-    user: Schema.Types.ObjectId;
-    friends_from: Date;
-  }[];
-  createdAt: Date;
-  updatedAt: Date;
-}
 
-interface IUserModel extends Model<IUser> {
-  // Add custom static methods here if needed
-}
-
-const userSchema = new Schema<IUser, IUserModel>(
+export const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -133,7 +107,34 @@ const userSchema = new Schema<IUser, IUserModel>(
   }
 );
 
-const User: IUserModel =
-  (models.User as IUserModel) || model<IUser, IUserModel>('User', userSchema);
+export interface UserData {
+  username: string;
+  first_name: string;
+  last_name?: string;
+  password_hash?: string;
+  has_password?: boolean;
+  email: string;
+  verified?: boolean;
+  picture: string;
+  date_of_birth: Date;
+  gender: 'male' | 'female' | 'other' | 'na';
+  posts: Schema.Types.ObjectId[];
+  comments: Schema.Types.ObjectId[];
+  likes: Schema.Types.ObjectId[];
+  dislikes: Schema.Types.ObjectId[];
+  friends: {
+    user: Schema.Types.ObjectId;
+    friends_from: Date;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export default User;
+export interface UserDocument extends Document, UserData{}
+
+
+const model = (models.User as Model<UserDocument>) || mongoose.model<
+  UserDocument
+>('User', userSchema);
+
+export default model

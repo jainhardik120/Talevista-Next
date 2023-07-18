@@ -16,9 +16,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new HttpError(422, "Invalid id")
         }
-        const findUser = await User.findOne({
-            _id: userId
-        })
+        const findUser = await User.findById(userId)
         if (!findUser) {
             throw new HttpError(404, "User Not Found")
         }
