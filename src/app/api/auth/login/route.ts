@@ -18,11 +18,11 @@ export async function POST(request: Request) {
     const { email, password } = await request.json()
     try {
         await connectMongo();
-        const foundUser = await User.findOne({ email: email });
+        const foundUser = await User.findOne({ $or: [{ email: email }, { username: email }] });
         if (!email || !password) {
             throw new HttpError(400, "Email or Password field can't be empty!")
         } else if (!foundUser) {
-            throw new HttpError(400, "Email address is not signed up!")
+            throw new HttpError(404, "Account not signed up")
         } else if (!foundUser.has_password) {
             throw new HttpError(400, "Account has no password")
         } else {

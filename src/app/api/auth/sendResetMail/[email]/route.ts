@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { email: strin
     const email = params.email
     try {
         await connectMongo();
-        const foundUser = await User.findOne({ email: email });
+        const foundUser = await User.findOne({ $or: [{ email: email }, { username: email }] });
         if (!foundUser) {
             throw new HttpError(404, "Email address not signed up")
         } else {
